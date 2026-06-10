@@ -1,0 +1,94 @@
+{
+  "name": "ainative-postgres-mcp",
+  "version": "1.0.0",
+  "description": "Zero-config Postgres MCP server with auto-provisioning. Drop-in replacement for @modelcontextprotocol/server-postgres — no DATABASE_URL needed. Auto-provisions a managed PostgreSQL instance with pgvector on first run.",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "ainative-postgres-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "mcp-server-hosting",
+    "model-context-protocol",
+    "model-context-protocol-server",
+    "modelcontextprotocol",
+    "postgres",
+    "postgresql",
+    "database",
+    "auto-provisioning",
+    "zerodb",
+    "ainative",
+    "managed-postgres",
+    "serverless-postgres",
+    "free-database",
+    "pgvector",
+    "vector-search",
+    "sql",
+    "query",
+    "schema",
+    "claude",
+    "claude-code",
+    "claude-desktop",
+    "claude-ai-agents",
+    "cursor",
+    "windsurf",
+    "codex",
+    "n8n-ai",
+    "server-postgres",
+    "server-postgres-alternative",
+    "neon-alternative",
+    "supabase-alternative",
+    "planetscale-alternative",
+    "zero-config",
+    "instant-database",
+    "ai-database",
+    "agent-database",
+    "agentic-ai",
+    "ai-agents",
+    "ai-tool-calling",
+    "production-ready",
+    "drop-in-replacement",
+    "free-tier",
+    "cloud-database"
+  ],
+  "author": {
+    "name": "AINative Studio",
+    "email": "toby@rely.ventures",
+    "url": "https://ainative.studio"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AINative-Studio/ainative-postgres-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AINative-Studio/ainative-postgres-mcp/issues"
+  },
+  "homepage": "https://github.com/AINative-Studio/ainative-postgres-mcp#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.0",
+    "dotenv": "^16.4.0",
+    "pg": "^8.13.0"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE",
+    ".claude/",
+    ".cody/"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
