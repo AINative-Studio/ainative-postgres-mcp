@@ -1,6 +1,6 @@
 {
   "name": "ainative-postgres-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zero-config Postgres MCP server with auto-provisioning. Drop-in replacement for @modelcontextprotocol/server-postgres — no DATABASE_URL needed. Auto-provisions a managed PostgreSQL instance with pgvector on first run.",
   "type": "module",
   "main": "index.js",
@@ -90,5 +90,6 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "mcpName": "io.github.AINative-Studio/ainative-postgres-mcp"
 }

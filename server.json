@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.AINative-Studio/ainative-postgres-mcp",
+  "description": "Zero-config Postgres MCP with auto-provisioning — drop-in for server-postgres.",
+  "repository": {
+    "url": "https://github.com/AINative-Studio/ainative-postgres-mcp",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "ainative-postgres-mcp",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
