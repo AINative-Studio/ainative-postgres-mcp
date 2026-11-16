@@ -282,7 +282,12 @@ class PostgresManager {
   }
 
   async connect() {
-    this.pool = new pg.default.Pool({
+    // pg is CommonJS; with pg ^8.x imported via `import pg from 'pg'` in an
+    // ESM module, pg.Pool is the real constructor -- pg.default is
+    // undefined. Support both shapes defensively in case a future pg
+    // version or bundler changes the interop shape again.
+    const Pool = pg.Pool || pg.default?.Pool;
+    this.pool = new Pool({
       connectionString: this.databaseUrl,
       max: 5,
       idleTimeoutMillis: 30000,
