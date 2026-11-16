@@ -115,6 +115,33 @@ describe('PostgresManager', () => {
     const manager = new PostgresManager('postgresql://localhost:5432/testdb?sslmode=require');
     assert.ok(manager.databaseUrl.includes('sslmode=require'));
   });
+
+  it('connect() must not crash with "Cannot read properties of undefined" before even reaching the network', async () => {
+    // Regression test for a real production bug: every real connect()
+    // call crashed with "Cannot read properties of undefined (reading
+    // 'Pool')" because `new pg.default.Pool(...)` assumed an ESM default
+    // export shape that pg (CommonJS) does not have -- pg.Pool is the real
+    // constructor, pg.default is undefined. This crashed before any
+    // network I/O, so it reproduces identically against ANY connection
+    // string, valid or not -- the assertion here is specifically that the
+    // failure (if the DB is unreachable in this environment) is a real
+    // connection/network error, never the "undefined (reading 'Pool')"
+    // TypeError that indicated the constructor itself was broken.
+    if (!PostgresManager) {
+      console.log('  Skipped (import failed)');
+      return;
+    }
+    const manager = new PostgresManager('postgresql://localhost:1/nonexistent_db_for_test');
+    try {
+      await manager.connect();
+      assert.fail('connect() should have thrown for an unreachable database');
+    } catch (err) {
+      assert.ok(
+        !err.message.includes("reading 'Pool'"),
+        `connect() failed with a Pool-construction error, not a real connection error: ${err.message}`
+      );
+    }
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────
