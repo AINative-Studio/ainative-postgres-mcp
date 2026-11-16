@@ -142,6 +142,61 @@ describe('PostgresManager', () => {
       );
     }
   });
+
+  it('strips sslmode/ssl from the connection string pg.Pool actually receives', async () => {
+    // Regression test for a real production bug: pg (via
+    // pg-connection-string) parses sslmode=require OUT OF the connection
+    // string into its OWN ssl config, which wins over the separately-passed
+    // `ssl: { rejectUnauthorized: false }` option for certificate
+    // validation -- confirmed live against a real DigitalOcean-managed
+    // Postgres instance: connect() failed with "self-signed certificate in
+    // certificate chain" even with rejectUnauthorized explicitly false.
+    // The fix must ensure the connection string pg.Pool actually receives
+    // has no sslmode/ssl query param, so the explicit `ssl` option is the
+    // ONLY source of truth -- this inspects what's actually passed to the
+    // real pg.Pool constructor via a mock, not just manager.databaseUrl
+    // (which must still show the ORIGINAL url with sslmode for other
+    // logic that inspects it).
+    if (!PostgresManager) {
+      console.log('  Skipped (import failed)');
+      return;
+    }
+    const pgModule = await import('pg');
+    const pg = pgModule.default;
+    const originalPool = pg.Pool;
+    let capturedConfig = null;
+
+    class FakePool {
+      constructor(config) {
+        capturedConfig = config;
+        throw new Error('intentional-test-stop');
+      }
+    }
+    pg.Pool = FakePool;
+
+    try {
+      const manager = new PostgresManager(
+        'postgresql://user:pass@realhost:5432/realdb?sslmode=require'
+      );
+      try {
+        await manager.connect();
+      } catch (_) {
+        // expected -- FakePool always throws, we only care what it received
+      }
+      assert.ok(capturedConfig, 'pg.Pool was never constructed');
+      assert.ok(
+        !/[?&](sslmode|ssl)=/.test(capturedConfig.connectionString),
+        `connectionString still contains sslmode/ssl query param: ${capturedConfig.connectionString}`
+      );
+      assert.deepEqual(capturedConfig.ssl, { rejectUnauthorized: false });
+      // manager.databaseUrl (the original, unmodified URL) is still used
+      // elsewhere (e.g. the SSL-detection check itself) -- only the string
+      // actually given to pg.Pool should be stripped.
+      assert.ok(manager.databaseUrl.includes('sslmode=require'));
+    } finally {
+      pg.Pool = originalPool;
+    }
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────

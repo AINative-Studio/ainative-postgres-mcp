@@ -287,14 +287,26 @@ class PostgresManager {
     // undefined. Support both shapes defensively in case a future pg
     // version or bundler changes the interop shape again.
     const Pool = pg.Pool || pg.default?.Pool;
+
+    const wantsSsl = this.databaseUrl.includes('sslmode=require') || this.databaseUrl.includes('ssl=true');
+    // pg (via pg-connection-string) parses sslmode=require OUT OF the
+    // connection string into its own ssl config, which wins over a
+    // separately-passed `ssl` option for certificate validation -- so
+    // `rejectUnauthorized: false` below never actually took effect against
+    // a real self-signed cert chain (confirmed live against a real managed
+    // Postgres instance: "self-signed certificate in certificate chain"
+    // even with this exact ssl option set). Strip the query-string SSL
+    // params so the explicit `ssl` option below is the ONLY source of
+    // truth, instead of two conflicting configs fighting over the same
+    // connection.
+    const connectionString = this.databaseUrl.replace(/[?&](sslmode|ssl)=[^&]*/g, '').replace(/\?&/, '?');
+
     this.pool = new Pool({
-      connectionString: this.databaseUrl,
+      connectionString,
       max: 5,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
-      ssl: this.databaseUrl.includes('sslmode=require') || this.databaseUrl.includes('ssl=true')
-        ? { rejectUnauthorized: false }
-        : undefined
+      ssl: wantsSsl ? { rejectUnauthorized: false } : undefined
     });
 
     // Test connection
